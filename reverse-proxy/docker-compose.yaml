@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+
+  reverse-proxy:
+    build: ./
+    container_name: reverse-proxy
+    networks:
+    - core
+
+networks:
+  core:
+    name: core
