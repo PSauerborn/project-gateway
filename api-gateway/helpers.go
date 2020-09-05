@@ -84,7 +84,13 @@ func SetProxyHeaders(request *http.Request, url *url.URL) {
 	request.Host = url.Host
 }
 
-func SetCorsHeaders(response http.ResponseWriter) {
+func SetCorsHeaders(response http.ResponseWriter, request *http.Request) {
+	origin := request.Header.Get("Origin")
+	if len(origin) > 0 {
+		response.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		response.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	response.Header().Set("Access-Control-Allow-Origin", "*")
 	response.Header().Set("Access-Control-Allow-Credentials", "true")
 	response.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
