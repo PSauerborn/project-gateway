@@ -45,7 +45,7 @@ func ExtractToken(header string) (string, error) {
 func AuthenticateUser(request *http.Request) (*JWTClaims, error) {
 	// extract token from authentication header
 	tokenString, err := ExtractToken(request.Header.Get("Authorization"))
-	if err != nil {
+	if err != nil || tokenString == "undefined" {
 		log.Error(fmt.Errorf("invalid authorization header: %v", err))
 		return nil, errors.New("received invalid authorization header")
 	}
