@@ -40,6 +40,11 @@ func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
 
 // handler function that acts as API Gateway
 func Gateway(response http.ResponseWriter, request *http.Request) {
+	// return empty options calls
+	if request.Method == http.MethodOptions {
+		SetCorsHeaders(response)
+	}
+
 	log.Info(fmt.Sprintf("received request for URL %s", request.URL.Path))
 	// authenticate user using JWToken present in request
 	claims, err := AuthenticateUser(request)
