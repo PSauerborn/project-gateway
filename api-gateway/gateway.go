@@ -41,7 +41,7 @@ func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
 // handler function that acts as API Gateway
 func Gateway(response http.ResponseWriter, request *http.Request) {
 	// return empty options calls
-	SetCorsHeaders(response)
+	SetCorsHeaders(response, request)
 	if request.Method == http.MethodOptions {
 		return
 	}
