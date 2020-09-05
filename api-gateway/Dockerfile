@@ -21,6 +21,6 @@ COPY --from=build /app/server/api-gateway ./
 
 RUN chmod +x ./api-gateway
 
-EXPOSE 10081
+EXPOSE 10000
 
 CMD [ "./api-gateway" ]
