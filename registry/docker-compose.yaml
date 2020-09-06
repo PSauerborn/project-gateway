@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+
+  application-registry-frontend:
+    build: ./frontend
+    container_name: application-registry-frontend
+    networks:
+    - core
+
+  application-registry:
+    build: ./proxy
+    container_name: application-registry
+    networks:
+    - core
+
+networks:
+  core:
+    name: core
