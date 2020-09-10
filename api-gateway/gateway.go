@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
-	// configure environment variables
+	// configure environment variables and connect persistence
 	ConfigureService()
+	ConnectPersistence()
 
 	log.Info(fmt.Sprintf("starting gateway service at %s:%d", ListenAddress, ListenPort))
 	http.HandleFunc("/", Gateway)

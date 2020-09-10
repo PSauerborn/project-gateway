@@ -69,7 +69,7 @@ func getProxyURI(path string) (ApplicationDetails, error) {
 	log.Info(fmt.Sprintf("getting redirect for application '%s'", params[1]))
 
 	// get application details from postgres server
-	details, err := GetModuleDetails(params[1])
+	details, err := persistence.GetModuleDetails(params[1])
 	if err != nil {
 		return ApplicationDetails{}, err
 	}

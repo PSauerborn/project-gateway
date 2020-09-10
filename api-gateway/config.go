@@ -13,6 +13,7 @@ var (
 	ListenPort int
 	TokenExpiryMinutes int
 	JWTSecret string
+	PostgresConnection string
 )
 
 // Function used to configure service settings
@@ -29,6 +30,8 @@ func ConfigureService() {
 	ListenPort = OverrideIntegerVariable("LISTEN_PORT", 10000)
 
 	JWTSecret = OverrideStringVariable("JWT_SECRET", "")
+
+	PostgresConnection = OverrideStringVariable("POSTGRES_CONNECTION", "postgres://postgres:postgres-dev@localhost:5432/gateway")
 }
 
 // Function used to override configuration variables with some

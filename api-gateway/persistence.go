@@ -4,45 +4,44 @@ import (
 	"fmt"
 	"time"
 	"context"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	PostgresConnection = OverrideStringVariable("POSTGRES_CONNECTION", "postgres://postgres:postgres-dev@localhost:5432/gateway")
-)
+var persistence *Persistence
 
-type ApplicationDetails struct {
-	ApplicationID   uuid.UUID `json:"application_id"`
-	ApplicationName string 	  `json:"application_name"`
-	CreatedAt		time.Time `json:"created_at"`
-	Description	    string    `json:"description"`
-	RedirectURL 	string 	  `json:"redirect_url"`
-	TrimAppName     bool	  `json:"trim_app_name"`
+type Persistence struct {
+	conn *pgxpool.Pool
 }
 
-func GetModuleDetails(module string) (ApplicationDetails, error) {
-	db, err := pgx.Connect(context.Background(), PostgresConnection)
+// function used to connect postgres connection
+func ConnectPersistence() {
+	log.Info(fmt.Sprintf("attempting postgres connection with connection string %s", PostgresConnection))
+	db, err := pgxpool.Connect(context.Background(), PostgresConnection)
 	if err != nil {
-		log.Error(fmt.Errorf("unable to connect to Postgres Server: %v", err))
-		return ApplicationDetails{}, err
+		log.Fatal(fmt.Errorf("unable to connect to postgres server: %v", err))
 	}
-	defer db.Close(context.Background())
+	log.Info("successfully connected to postgres")
+	// connect persistence and assign to persistence var
+	persistence = &Persistence{ db }
+}
 
-	var (applicationId uuid.UUID; applicationName, description, redirectUrl string; created time.Time; trim bool)
+func(db Persistence) GetModuleDetails(application string) (ApplicationDetails, error) {
+
+	log.Debug(fmt.Sprintf("fetching module details for module %s", application))
+	var (applicationId uuid.UUID; description, redirectUrl string; created time.Time; trim bool)
 
 	// get module details from postgres server
-	results := db.QueryRow(context.Background(), "SELECT application_id,application_name,created_at,description,redirect_url,trim_app_name FROM applications WHERE application_name=$1", module)
-	err = results.Scan(&applicationId, &applicationName, &created, &description, &redirectUrl, &trim)
+	results := db.conn.QueryRow(context.Background(), "SELECT application_id,created_at,description,redirect_url,trim_app_name FROM applications WHERE application_name=$1", application)
+	err := results.Scan(&applicationId, &created, &description, &redirectUrl, &trim)
 	if err != nil {
 		log.Error(fmt.Errorf("unable to retrieve module details: %v", err))
 		return ApplicationDetails{}, err
 	}
-
 	details := ApplicationDetails{
 		ApplicationID: applicationId,
-		ApplicationName: applicationName,
+		ApplicationName: application,
 		CreatedAt: created,
 		Description: description,
 		RedirectURL: redirectUrl,

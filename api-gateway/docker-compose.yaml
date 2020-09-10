@@ -1,9 +1,27 @@
 version: '3.7'
 services:
 
-  api-gateway:
+  api-gateway-1:
     build: ./
-    container_name: api-gateway
+    container_name: api-gateway-1
+    networks:
+    - core
+    - postgres
+    env_file:
+    - .env
+
+  api-gateway-2:
+    build: ./
+    container_name: api-gateway-2
+    networks:
+    - core
+    - postgres
+    env_file:
+    - .env
+
+  api-gateway-3:
+    build: ./
+    container_name: api-gateway-3
     networks:
     - core
     - postgres
