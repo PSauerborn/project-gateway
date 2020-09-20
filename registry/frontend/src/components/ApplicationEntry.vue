@@ -1,6 +1,6 @@
 <template>
-    <v-sheet>
-        <v-card @click.stop="redirect">
+    <v-col cols=4>
+        <v-card @click.stop="redirect" min-height="450">
             <v-row align="center" justify="center" dense>
                 <v-col cols=12 align="center" justify="center">
                     <v-card-text>
@@ -22,7 +22,7 @@
                 </v-col>
             </v-row>
         </v-card>
-    </v-sheet>
+    </v-col>
 </template>
 
 <script>

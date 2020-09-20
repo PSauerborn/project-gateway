@@ -12,9 +12,7 @@
                 </v-card-subtitle>
             </v-row>
             <v-row align="center" justify="center">
-                <v-col cols=3 align="center" justify="center">
-                    <application-entry v-for="(application, index) in applications" :application="application" :key="index"/>
-                </v-col>
+                <application-entry v-for="(application, index) in applications" :application="application" :key="index"/>
             </v-row>
         </v-card>
     </v-col>
@@ -40,7 +38,15 @@ export default {
                     application_description: 'task management and analysis tool. create and manage daily tasks and gain insights on how to optimize your daily task flow',
                     application_id: '',
                     redirect_url: 'https://project-gateway.app/monty',
-                    icon: "mdi-file-tree"
+                    icon: 'mdi-file-tree'
+
+                },
+                {
+                    application_name: 'Go Timesheets',
+                    application_description: 'timesheet management tool used to track and analyse daily working hours',
+                    application_id: '',
+                    redirect_url: 'https://project-gateway.app/go-timesheets',
+                    icon: 'mdi-briefcase-clock'
 
                 }
             ]
