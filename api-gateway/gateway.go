@@ -68,13 +68,6 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
     if request.Method == http.MethodOptions {
         return
     }
-
-    log.Debug("generating new jaeger span for tracing")
-    // start new jaeger span with given route
-    span := opentracing.StartSpan(request.URL.Path)
-    setJaegerTags(span, request, claims.Uid)
-    defer span.Finish()
-
     log.Info(fmt.Sprintf("received proxy request for user %s", claims.Uid))
     request.Header.Set("X-Authenticated-Userid", claims.Uid)
 
@@ -85,6 +78,13 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
         StandardHTTP{}.BadGateway(response)
         return
     }
+
+    log.Debug("generating new jaeger span for tracing")
+    // start new jaeger span with given route
+    span := opentracing.StartSpan(fmt.Sprintf("proxy - %s", appDetails.ApplicationName))
+    setJaegerTags(span, request, claims.Uid)
+    defer span.Finish()
+
     // inject current span into downstream microservice headers
     opentracing.GlobalTracer().Inject(
         span.Context(),
