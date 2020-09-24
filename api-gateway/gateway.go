@@ -6,12 +6,18 @@ import (
     "net/url"
     "net/http/httputil"
     log "github.com/sirupsen/logrus"
+    opentracing "github.com/opentracing/opentracing-go"
+    jaeger "github.com/PSauerborn/jaeger-negroni"
 )
 
 func main() {
     // configure environment variables and connect persistence
     ConfigureService()
     ConnectPersistence()
+
+    config := jaeger.Config("jaeger-agent", "test-service", 6831)
+    tracer := jaeger.NewTracer(config)
+    defer tracer.Close()
 
     log.Info(fmt.Sprintf("starting gateway service at %s:%d", ListenAddress, ListenPort))
     http.HandleFunc("/", Gateway)
@@ -38,14 +44,16 @@ func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
     http.Error(w, "Bad Gateway", http.StatusBadGateway)
 }
 
+func setJaegerTags(span opentracing.Span, request *http.Request, user string) {
+    span.SetTag("http.url", request.URL.Path)
+    span.SetTag("http.method", request.Method)
+    span.SetTag("uid", user)
+}
 
 // handler function that acts as API Gateway
 func Gateway(response http.ResponseWriter, request *http.Request) {
-    // return empty options calls
+    // set relevant cors headers
     SetCorsHeaders(response, request)
-    if request.Method == http.MethodOptions {
-        return
-    }
 
     log.Info(fmt.Sprintf("received request for URL %s", request.URL.Path))
     // authenticate user using JWToken present in request
@@ -55,16 +63,30 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
         StandardHTTP{}.Unauthorized(response)
         return
     }
+    // return options calls
+    if request.Method == http.MethodOptions {
+        return
+    }
+    // start new jaeger span with given route
+    span := opentracing.StartSpan(request.URL.Path)
+    setJaegerTags(span, request, claims.Uid)
 
     log.Info(fmt.Sprintf("received proxy request for user %s", claims.Uid))
     request.Header.Set("X-Authenticated-Userid", claims.Uid)
-    // get redirect URL for application
+
+    // get redirect URL for application from postgres server
     appDetails, err := getProxyURI(request.URL.Path)
     if err != nil {
         log.Error(fmt.Errorf("unable to retrieve redirect uri: %v", err))
         StandardHTTP{}.BadGateway(response)
         return
     }
+    // inject current span into downstream microservice headers
+    opentracing.GlobalTracer().Inject(
+        span.Context(),
+        opentracing.HTTPHeaders,
+        opentracing.HTTPHeadersCarrier(request.Header))
+
     log.Info(fmt.Sprintf("proxying request to %s", appDetails.RedirectURL))
     // proxy request to relevant microservices
     ProxyRequest(appDetails, response, request)
