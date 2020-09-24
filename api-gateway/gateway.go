@@ -55,6 +55,10 @@ func setJaegerTags(span opentracing.Span, request *http.Request, user string) {
 func Gateway(response http.ResponseWriter, request *http.Request) {
     // set relevant cors headers
     SetCorsHeaders(response, request)
+    // return options calls
+    if request.Method == http.MethodOptions {
+        return
+    }
 
     log.Info(fmt.Sprintf("received request for URL %s", request.URL.Path))
     // authenticate user using JWToken present in request
@@ -62,10 +66,6 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
     if err != nil {
         log.Error(fmt.Errorf("unable to authenticate user: %v", err))
         StandardHTTP{}.Unauthorized(response)
-        return
-    }
-    // return options calls
-    if request.Method == http.MethodOptions {
         return
     }
     log.Info(fmt.Sprintf("received proxy request for user %s", claims.Uid))
