@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+
+  jaeger-agent:
+    image: jaegertracing/jaeger-agent
+    container_name: jaeger-agent
+    networks:
+    - core
+    environment:
+      LOG_LEVEL: debug
+      SPAN_STORAGE_TYPE: cassandra
+      JAEGER_REPORTER_LOG_SPANS: "true"
+      REPORTER_GRPC_HOST_PORT: jaeger-collector:14250
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector
+    container_name: jaeger-collector
+    networks:
+    - core
+    - cassandra
+    environment:
+      LOG_LEVEL: debug
+      SPAN_STORAGE_TYPE: cassandra
+      JAEGER_REPORTER_LOG_SPANS: "true"
+      CASSANDRA_KEYSPACE: jaeger_v1_dc1
+      CASSANDRA_SERVERS: cassandra-server
+      CASSANDRA_DATACENTER: DC1
+      CASSANDA_PORT: 9042
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query
+    container_name: jaeger-query
+    networks:
+    - core
+    - cassandra
+    environment:
+      LOG_LEVEL: debug
+      SPAN_STORAGE_TYPE: cassandra
+      JAEGER_REPORTER_LOG_SPANS: "true"
+      CASSANDRA_KEYSPACE: jaeger_v1_dc1
+      CASSANDRA_SERVERS: cassandra-server
+      CASSANDRA_DATACENTER: DC1
+      CASSANDA_PORT: 9042
+      JAEGER_AGENT_HOST: jaeger-agent
+      JAEGER_AGENT_PORT: 6831
+      QUERY_BASE_PATH: /jaeger
+
+networks:
+  core:
+    name: core
+  cassandra:
+    name: cassandra
