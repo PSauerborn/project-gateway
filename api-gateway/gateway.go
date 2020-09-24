@@ -15,7 +15,7 @@ func main() {
     ConfigureService()
     ConnectPersistence()
 
-    config := jaeger.Config("jaeger-agent", "test-service", 6831)
+    config := jaeger.Config("jaeger-agent", "api-gateway", 6831)
     tracer := jaeger.NewTracer(config)
     defer tracer.Close()
 
