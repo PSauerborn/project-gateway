@@ -45,6 +45,7 @@ func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
 }
 
 func setJaegerTags(span opentracing.Span, request *http.Request, user string) {
+    log.Debug(fmt.Sprintf("setting tags on jaeger span for user %s", user))
     span.SetTag("http.url", request.URL.Path)
     span.SetTag("http.method", request.Method)
     span.SetTag("uid", user)
@@ -67,9 +68,12 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
     if request.Method == http.MethodOptions {
         return
     }
+
+    log.Debug("generating new jaeger span for tracing")
     // start new jaeger span with given route
     span := opentracing.StartSpan(request.URL.Path)
     setJaegerTags(span, request, claims.Uid)
+    defer span.Finish()
 
     log.Info(fmt.Sprintf("received proxy request for user %s", claims.Uid))
     request.Header.Set("X-Authenticated-Userid", claims.Uid)
