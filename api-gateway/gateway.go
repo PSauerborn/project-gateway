@@ -4,6 +4,7 @@ import (
     "fmt"
     "net/http"
     "net/url"
+    "strings"
     "net/http/httputil"
     log "github.com/sirupsen/logrus"
     opentracing "github.com/opentracing/opentracing-go"
@@ -72,7 +73,7 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
         return
     }
     // get jaeger span from current context and defer closure
-    span := getJaegerSpan(request, "proxy")
+    span := getJaegerSpan(request, fmt.Sprintf("Proxy - %s", strings.Title(appDetails.ApplicationName)))
     defer span.Finish()
     setJaegerTags(span, request, claims.Uid)
 
