@@ -5,6 +5,6 @@
       "param": 1
     },
     "reporter": {
-      "localAgentHostPort": "jaeger:6831"
+      "localAgentHostPort": "jaeger-agent:6831"
     }
   }
