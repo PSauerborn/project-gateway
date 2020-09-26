@@ -27,9 +27,6 @@ func main() {
     router.Use(cors.Default())
     router.Use(jaeger.JaegerNegroni(config))
 
-    router.GET("/authenticate/token", func(ctx *gin.Context) {
-        StandardHTTP.FeatureNotSupported(ctx)
-    })
     router.Any("/:application/*proxyPath", Gateway)
 
     log.Info(fmt.Sprintf("starting gateway service at %s:%d", ListenAddress, ListenPort))
