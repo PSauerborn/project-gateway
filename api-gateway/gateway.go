@@ -6,6 +6,9 @@ import (
     "net/url"
     "strings"
     "net/http/httputil"
+    "github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
+    "github.com/jackc/pgx/v4"
     log "github.com/sirupsen/logrus"
     opentracing "github.com/opentracing/opentracing-go"
     jaeger "github.com/PSauerborn/jaeger-negroni"
@@ -20,72 +23,69 @@ func main() {
     tracer := jaeger.NewTracer(config)
     defer tracer.Close()
 
+    router := gin.New()
+    router.Use(cors.Default())
+    router.Use(jaeger.JaegerNegroni(config))
+
+    router.GET("/authenticate/token", func(ctx *gin.Context) {
+        StandardHTTP.FeatureNotSupported(ctx)
+    })
+    router.Any("/:application/*proxyPath", Gateway)
+
     log.Info(fmt.Sprintf("starting gateway service at %s:%d", ListenAddress, ListenPort))
-    http.HandleFunc("/", Gateway)
-    if err := http.ListenAndServe(fmt.Sprintf(":%d", ListenPort), nil); err != nil {
-        panic(err)
-    }
-}
-
-type StandardHTTP struct {}
-
-func(response StandardHTTP) Unauthorized(w http.ResponseWriter) {
-    http.Error(w, "Unauthorized", http.StatusUnauthorized)
-}
-
-func(response StandardHTTP) Forbidden(w http.ResponseWriter) {
-    http.Error(w, "Forbidden", http.StatusForbidden)
-}
-
-func(response StandardHTTP) InternalServerError(w http.ResponseWriter) {
-    http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-}
-
-func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
-    http.Error(w, "Bad Gateway", http.StatusBadGateway)
+    router.Run(fmt.Sprintf("%s:%d", ListenAddress, ListenPort))
 }
 
 // handler function that acts as API Gateway
-func Gateway(response http.ResponseWriter, request *http.Request) {
+func Gateway(ctx *gin.Context) {
     // set relevant cors headers
-    SetCorsHeaders(response, request)
+    SetCorsHeaders(ctx.Writer, ctx.Request)
     // return options calls
-    if request.Method == http.MethodOptions {
+    if ctx.Request.Method == http.MethodOptions {
         return
     }
 
-    log.Info(fmt.Sprintf("received request for URL %s", request.URL.Path))
+    log.Debug(fmt.Sprintf("received request for URL %s", ctx.Request.URL.Path))
     // authenticate user using JWToken present in request
-    claims, err := AuthenticateUser(request)
+    claims, err := AuthenticateUser(ctx.Request)
     if err != nil {
         log.Error(fmt.Errorf("unable to authenticate user: %v", err))
-        StandardHTTP{}.Unauthorized(response)
+        StandardHTTP.Unauthorized(ctx)
         return
     }
+
+    // inject uid into X-Authenticated-Userid header
     log.Info(fmt.Sprintf("received proxy request for user %s", claims.Uid))
-    request.Header.Set("X-Authenticated-Userid", claims.Uid)
+    ctx.Request.Header.Set("X-Authenticated-Userid", claims.Uid)
 
     // get redirect URL for application from postgres server
-    appDetails, err := getProxyURI(request.URL.Path)
+    appDetails, err := persistence.GetModuleDetails(ctx.Param("application"))
     if err != nil {
-        log.Error(fmt.Errorf("unable to retrieve redirect uri: %v", err))
-        StandardHTTP{}.BadGateway(response)
-        return
+        switch err {
+        case pgx.ErrNoRows:
+            log.Error(fmt.Sprintf("invalid application %s", ctx.Param("application")))
+            StandardHTTP.BadGateway(ctx)
+            return
+        default:
+            log.Error(fmt.Errorf("unable to retrieve redirect uri: %v", err))
+            StandardHTTP.InternalServerError(ctx)
+            return
+        }
     }
     // get jaeger span from current context and defer closure
-    span := getJaegerSpan(request, fmt.Sprintf("Proxy - %s", strings.Title(appDetails.ApplicationName)))
+    span := getJaegerSpan(ctx.Request, fmt.Sprintf("Proxy - %s", strings.Title(appDetails.ApplicationName)))
     defer span.Finish()
-    setJaegerTags(span, request, claims.Uid)
+    setJaegerTags(span, ctx.Request, claims.Uid)
 
     // inject current span into downstream microservice headers
     opentracing.GlobalTracer().Inject(
         span.Context(),
         opentracing.HTTPHeaders,
-        opentracing.HTTPHeadersCarrier(request.Header))
+        opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 
     log.Info(fmt.Sprintf("proxying request to %s", appDetails.RedirectURL))
     // proxy request to relevant microservices
-    ProxyRequest(appDetails, response, request)
+    ProxyRequest(appDetails, ctx.Writer, ctx.Request)
 }
 
 // define function used to proxy request

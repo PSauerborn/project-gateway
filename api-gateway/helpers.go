@@ -59,24 +59,6 @@ func AuthenticateUser(request *http.Request) (*JWTClaims, error) {
     return tokenClaims, nil
 }
 
-// define function used to determine relevant proxy URL
-func getProxyURI(path string) (ApplicationDetails, error) {
-    // pass request path and extract application name
-    params := strings.Split(path, "/")
-    if len(params) < 2 {
-        log.Error("received request to empty route")
-        return ApplicationDetails{}, errors.New("invalid request path")
-    }
-    log.Info(fmt.Sprintf("getting redirect for application '%s'", params[1]))
-
-    // get application details from postgres server
-    details, err := persistence.GetModuleDetails(params[1])
-    if err != nil {
-        return ApplicationDetails{}, err
-    }
-    return details, nil
-}
-
 // function used to set proxy headers headers on request
 func SetProxyHeaders(request *http.Request, url *url.URL) {
     request.URL.Host = url.Host

@@ -31,7 +31,7 @@ func ConfigureService() {
 
     JWTSecret = OverrideStringVariable("JWT_SECRET", "")
 
-    PostgresConnection = OverrideStringVariable("POSTGRES_CONNECTION", "postgres://postgres:postgres-dev@localhost:5432/gateway")
+    PostgresConnection = OverrideStringVariable("POSTGRES_CONNECTION", "postgres://postgres:postgres@192.168.99.100:5432/gateway")
 }
 
 // Function used to override configuration variables with some
