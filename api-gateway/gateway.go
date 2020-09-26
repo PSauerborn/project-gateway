@@ -44,13 +44,6 @@ func(response StandardHTTP) BadGateway(w http.ResponseWriter) {
     http.Error(w, "Bad Gateway", http.StatusBadGateway)
 }
 
-func setJaegerTags(span opentracing.Span, request *http.Request, user string) {
-    log.Debug(fmt.Sprintf("setting tags on jaeger span for user %s", user))
-    span.SetTag("http.url", request.URL.Path)
-    span.SetTag("http.method", request.Method)
-    span.SetTag("uid", user)
-}
-
 // handler function that acts as API Gateway
 func Gateway(response http.ResponseWriter, request *http.Request) {
     // set relevant cors headers
@@ -78,12 +71,10 @@ func Gateway(response http.ResponseWriter, request *http.Request) {
         StandardHTTP{}.BadGateway(response)
         return
     }
-
-    log.Debug("generating new jaeger span for tracing")
-    // start new jaeger span with given route
-    span := opentracing.StartSpan(fmt.Sprintf("proxy - %s", appDetails.ApplicationName))
-    setJaegerTags(span, request, claims.Uid)
+    // get jaeger span from current context and defer closure
+    span := getJaegerSpan(request, "proxy")
     defer span.Finish()
+    setJaegerTags(span, request, claims.Uid)
 
     // inject current span into downstream microservice headers
     opentracing.GlobalTracer().Inject(
