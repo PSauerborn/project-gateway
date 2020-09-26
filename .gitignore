@@ -1,3 +1,6 @@
 .env
 *.exe
 node_modules
+
+private-key.txt
+certs
