@@ -7,7 +7,6 @@ import (
     "strings"
     "net/http/httputil"
     "github.com/gin-gonic/gin"
-    "github.com/gin-contrib/cors"
     "github.com/jackc/pgx/v4"
     log "github.com/sirupsen/logrus"
     opentracing "github.com/opentracing/opentracing-go"
@@ -24,7 +23,6 @@ func main() {
     defer tracer.Close()
 
     router := gin.New()
-    router.Use(cors.Default())
     router.Use(jaeger.JaegerNegroni(config))
 
     router.Any("/:application/*proxyPath", Gateway)
