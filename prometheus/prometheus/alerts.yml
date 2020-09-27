@@ -19,7 +19,7 @@ groups:
 - name: postgres
   rules:
   - alert: PostgresDown
-    expr: pg_up == 20e9
+    expr: pg_up == 0
     for: 10m
     labels:
       severity: high
