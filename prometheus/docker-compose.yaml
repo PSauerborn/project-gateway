@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+
+  prometheus:
+    build: ./prometheus
+    container_name: prometheus
+    networks:
+    - core
+    expose:
+    - 9090
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus:/prometheus
+    command:
+      - '--web.external-url=http://localhost:9090/prometheus'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter
+    container_name: postgres-exporter
+    networks:
+    - core
+    env_file:
+    - .env
+
+networks:
+  core:
+    name: core
+
+volumes:
+  prometheus:
