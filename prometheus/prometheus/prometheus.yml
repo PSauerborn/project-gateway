@@ -8,8 +8,9 @@ scrape_configs:
   - job_name: 'prometheus'
     # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 60s
+    metrics_path: /prometheus/metrics
     static_configs:
-      - targets: ['localhost:9090/prometheus']
+      - targets: ['localhost:9090']
 
   - job_name: 'jaeger-agent'
     # Override the global default and scrape targets from this job every 5 seconds.
