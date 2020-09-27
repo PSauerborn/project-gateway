@@ -8,8 +8,6 @@ services:
     - core
     expose:
     - 9090
-    ports:
-      - "9090:9090"
     volumes:
       - prometheus:/prometheus
     command:
