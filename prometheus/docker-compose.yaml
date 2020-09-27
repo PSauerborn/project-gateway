@@ -19,12 +19,15 @@ services:
     container_name: postgres-exporter
     networks:
     - core
+    - postgres
     env_file:
     - .env
 
 networks:
   core:
     name: core
+  postgres:
+    name: postgres
 
 volumes:
   prometheus:
