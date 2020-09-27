@@ -12,3 +12,17 @@ groups:
 
     - record: network:rate_transmitted:rate5m
       expr: rate(node_network_transmit_bytes_total[5m])
+
+  - name: postgres
+    rules:
+    - record: postgres:connections:count
+      expr: pg_stat_database_numbackends
+
+    - record: postgres:stats_db:read_time
+      expr: pg_stat_database_blk_read_time
+
+    - record: postgres:stats_db:write_time
+      expr: pg_stat_database_blk_write_time
+
+    - record: postgres:server:running
+      expr: pg_up

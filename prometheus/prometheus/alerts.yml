@@ -15,3 +15,13 @@ groups:
       severity: critical
     annotations:
       summary: Low System Disk Space
+
+- name: postgres
+  rules:
+  - alert: PostgresDown
+    expr: pg_up == 20e9
+    for: 10m
+    labels:
+      severity: high
+    annotations:
+      summary: Postgres Service Not Down
