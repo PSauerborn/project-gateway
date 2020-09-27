@@ -1,0 +1,14 @@
+groups:
+  - name: system
+    rules:
+    - record: memory:available_bytes:total
+      expr: node_memory_MemAvailable_bytes
+
+    - record: disk:available_bytes:total
+      expr: node_filesystem_avail_bytes
+
+    - record: network:rate_received:rate5m
+      expr: rate(node_network_receive_bytes_total[5m])
+
+    - record: network:rate_transmitted:rate5m
+      expr: rate(node_network_transmit_bytes_total[5m])

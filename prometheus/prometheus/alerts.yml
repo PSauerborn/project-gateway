@@ -1,0 +1,17 @@
+groups:
+- name: system
+  rules:
+  - alert: LowMemoryAvailable
+    expr: node_memory_MemAvailable_bytes < 1e9
+    for: 10m
+    labels:
+      severity: critical
+    annotations:
+      summary: Low Disk Space
+  - alert: LowDiskSpaceAvailable
+    expr: node_filesystem_avail_bytes < 20e9
+    for: 10m
+    labels:
+      severity: critical
+    annotations:
+      summary: Low System Disk Space
