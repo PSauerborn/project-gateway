@@ -2,7 +2,9 @@ version: '3.7'
 services:
 
   api-gateway-1:
-    build: ./
+    build:
+      context: ../../
+      dockerfile: cmd/api-gateway/Dockerfile
     container_name: api-gateway-1
     networks:
     - core
@@ -11,7 +13,9 @@ services:
     - .env
 
   api-gateway-2:
-    build: ./
+    build:
+      context: ../../
+      dockerfile: cmd/api-gateway/Dockerfile
     container_name: api-gateway-2
     networks:
     - core
@@ -20,7 +24,9 @@ services:
     - .env
 
   api-gateway-3:
-    build: ./
+    build:
+      context: ../../
+      dockerfile: cmd/api-gateway/Dockerfile
     container_name: api-gateway-3
     networks:
     - core

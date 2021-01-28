@@ -11,16 +11,14 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build
+RUN CGO_ENABLED=0 go build cmd/gateway/main.go
 
 FROM alpine:latest as server
 
 WORKDIR /app/server
 
-COPY --from=build /app/server/api-gateway ./
+COPY --from=build /app/server/main ./
 
-RUN chmod +x ./api-gateway
+RUN chmod +x ./main
 
-EXPOSE 10000
-
-CMD [ "./api-gateway" ]
+CMD [ "./main" ]

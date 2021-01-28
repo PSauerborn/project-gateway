@@ -1,8 +1,10 @@
-package main
+package gateway
 
 import (
     "time"
+
     "github.com/google/uuid"
+    "github.com/dgrijalva/jwt-go"
 )
 
 type ApplicationDetails struct {
@@ -12,4 +14,10 @@ type ApplicationDetails struct {
     Description	    string    `json:"description"`
     RedirectURL 	string 	  `json:"redirect_url"`
     TrimAppName     bool	  `json:"trim_app_name"`
+}
+
+type JWTClaims struct {
+    Uid   string      `json:"uid"`
+    Admin bool	      `json:"admin"`
+    jwt.StandardClaims
 }

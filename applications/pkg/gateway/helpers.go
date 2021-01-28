@@ -1,63 +1,13 @@
-package main
+package gateway
 
 import (
     "fmt"
-    "strings"
-    "errors"
     "net/http"
     "net/url"
-    "github.com/dgrijalva/jwt-go"
+
     log "github.com/sirupsen/logrus"
     opentracing "github.com/opentracing/opentracing-go"
 )
-
-
-type JWTClaims struct {
-    Uid   string      `json:"uid"`
-    Admin bool	      `json:"admin"`
-    jwt.StandardClaims
-}
-
-// function used to parse JWT token
-func ParseJWToken(tokenString string) (*JWTClaims, error) {
-    log.Info(fmt.Sprintf("parsing JWToken %s", tokenString))
-    // parse token using JWT secret
-    token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-        return []byte(JWTSecret), nil
-    })
-    // parse token into custom claims object
-    if customClaims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
-        return customClaims, nil
-    } else {
-        log.Error(fmt.Errorf("unable to parse JWT claims: %v", err))
-        return nil, errors.New("invalid JWToken")
-    }
-}
-
-// define function used to extract token from request header
-func ExtractToken(header string) (string, error) {
-    if strings.HasPrefix(header, "Bearer ") {
-        return header[7:], nil
-    }
-    return "", errors.New(fmt.Sprintf("received invalid token schema: %s", header))
-}
-
-// define function used to authenticate user
-func AuthenticateUser(request *http.Request) (*JWTClaims, error) {
-    // extract token from authentication header
-    tokenString, err := ExtractToken(request.Header.Get("Authorization"))
-    if err != nil || tokenString == "undefined" {
-        log.Error(fmt.Errorf("invalid authorization header: %v", err))
-        return nil, errors.New("received invalid authorization header")
-    }
-    // parse token claims using token string
-    tokenClaims, err := ParseJWToken(tokenString)
-    if err != nil {
-        log.Error(fmt.Errorf("unable to parse JWToken: %v", err))
-        return nil, err
-    }
-    return tokenClaims, nil
-}
 
 // function used to set proxy headers headers on request
 func SetProxyHeaders(request *http.Request, url *url.URL) {
@@ -67,6 +17,7 @@ func SetProxyHeaders(request *http.Request, url *url.URL) {
     request.Host = url.Host
 }
 
+// function used to set CORS headers on incoming requests
 func SetCorsHeaders(response http.ResponseWriter, request *http.Request) {
     origin := request.Header.Get("Origin")
     if len(origin) > 0 {
