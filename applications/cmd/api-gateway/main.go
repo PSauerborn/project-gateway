@@ -11,7 +11,7 @@ var (
     cfg = utils.NewConfigMapWithValues(
         map[string]string{
             "listen_address": "0.0.0.0",
-            "listen_port": "10101",
+            "listen_port": "10000",
             "postgres_url": "postgres://postgres:postgres-dev@192.168.99.100",
             "jwt_secret": "secret_key",
         },
