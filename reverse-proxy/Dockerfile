@@ -7,3 +7,4 @@ COPY ./sites-available /etc/nginx/conf.d/
 
 COPY ./certs /etc/nginx/certs
 COPY ./private-key.txt /etc/nginx/
+COPY ./privkey.pem /etc/nginx/
