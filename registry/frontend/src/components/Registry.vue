@@ -37,7 +37,7 @@ export default {
                     application_name: 'Monty',
                     application_description: 'task management and analysis tool. create and manage daily tasks and gain insights on how to optimize your daily task flow',
                     application_id: '',
-                    redirect_url: 'https://project-gateway.app/monty',
+                    redirect_url: 'https://main.project-gateway.app/monty',
                     icon: 'mdi-file-tree'
 
                 },
@@ -45,7 +45,7 @@ export default {
                     application_name: 'Go Timesheets',
                     application_description: 'timesheet management tool used to track and analyse daily working hours',
                     application_id: '',
-                    redirect_url: 'https://project-gateway.app/go-timesheets',
+                    redirect_url: 'https://main.project-gateway.app/go-timesheets',
                     icon: 'mdi-briefcase-clock'
 
                 }
