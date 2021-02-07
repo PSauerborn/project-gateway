@@ -82,7 +82,7 @@ func forwardProxy(ctx *gin.Context) {
 
     // inject user ID into downstream headers
     ctx.Request.Header.Set("X-Authenticated-Userid",
-    ctx.MustGet("uid").(string))
+        ctx.MustGet("uid").(string))
 
     // get persistence from middleware context and retrieve app info
     persistence, _ := ctx.MustGet("persistence").(*Persistence)

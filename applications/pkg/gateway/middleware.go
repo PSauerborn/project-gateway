@@ -32,6 +32,8 @@ func JWTMiddleware(jwtSecret string) gin.HandlerFunc {
         // set relevant cors headers and return options calls
         SetCorsHeaders(ctx.Writer, ctx.Request)
         if ctx.Request.Method == http.MethodOptions {
+            log.Debug("received options calls. returning...")
+            ctx.AbortWithStatus(http.StatusOK)
             return
         }
 
