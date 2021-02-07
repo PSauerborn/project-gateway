@@ -50,3 +50,9 @@ scrape_configs:
     scrape_interval: 60s
     static_configs:
       - targets: ['hermes-jaeger-worm:8080']
+
+  - job_name: 'texas-real-foods'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['texas-real-foods-hermes:8080']
