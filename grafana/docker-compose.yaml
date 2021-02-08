@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-server
+    volumes:
+    - grafana:/var/lib/grafana
+    environment:
+      GF_SERVER_ROOT_URL: https://ops.project-gateway.app/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SERVER_DOMAIN: https://ops.project-gateway.app
+      GF_SERVER_PROTOCOL: http
+    networks:
+    - core
+
+networks:
+  core:
+    name: core
+
+volumes:
+  grafana:
