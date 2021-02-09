@@ -56,3 +56,9 @@ scrape_configs:
     scrape_interval: 60s
     static_configs:
       - targets: ['texas-real-foods-hermes:8080']
+
+  - job_name: 'docker'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['container-exporter:9104']

@@ -40,6 +40,18 @@ services:
     env_file:
     - .env
 
+  container-exporter:
+    image: prom/container-exporter
+    container_name: container-exporter
+    volumes:
+      - /sys/fs/cgroup:/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+    - core
+    - postgres
+    env_file:
+    - .env
+
 networks:
   core:
     name: core
