@@ -6,6 +6,8 @@ import (
 
     "github.com/gin-gonic/gin"
     log "github.com/sirupsen/logrus"
+
+    jaeger "github.com/PSauerborn/jaeger-negroni"
 )
 
 var (
@@ -26,6 +28,12 @@ func NewAdminAPI(postgresUrl, jwtSecret string, tokenExpiry int) *gin.Engine {
 
     router := gin.Default()
     router.Use(TimerMiddleware())
+
+    // generate new jaeger config
+    config := jaeger.Config("jaeger-agent", "api-gateway-admin", 6831)
+    jaeger.NewTracer(config)
+    router.Use(jaeger.JaegerNegroni(config))
+
     // define GET routes
     router.GET("/admin/health_check", healthCheckHandler)
     router.GET("/admin/applications", PostgresSessionMiddleware(postgresUrl),

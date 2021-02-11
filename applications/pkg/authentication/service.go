@@ -6,6 +6,8 @@ import (
 
     "github.com/gin-gonic/gin"
     log "github.com/sirupsen/logrus"
+
+    jaeger "github.com/PSauerborn/jaeger-negroni"
 )
 
 var cfg *AuthConfig
@@ -23,6 +25,11 @@ func NewAuthenticationAPI(postgresUrl, tokenRedirectUrl string) *gin.Engine {
     // generate new instance of gin router and add routes
     router := gin.Default()
     router.Use(TimerMiddleware())
+
+    // generate new jaeger config
+    config := jaeger.Config("jaeger-agent", "identity-provider", 6831)
+    jaeger.NewTracer(config)
+    router.Use(jaeger.JaegerNegroni(config))
 
     router.GET("/health_check", healthCheckHandler)
     // define POST routes
