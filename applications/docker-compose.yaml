@@ -3,6 +3,7 @@ services:
 
   api-gateway-1:
     build:
+      context: ./
       dockerfile: cmd/gateway/Dockerfile
     container_name: api-gateway-1
     networks:
@@ -13,6 +14,7 @@ services:
 
   api-gateway-2:
     build:
+      context: ./
       dockerfile: cmd/gateway/Dockerfile
     container_name: api-gateway-2
     networks:
@@ -23,6 +25,7 @@ services:
 
   api-gateway-3:
     build:
+      context: ./
       dockerfile: cmd/gateway/Dockerfile
     container_name: api-gateway-3
     networks:
@@ -33,6 +36,7 @@ services:
 
   gateway-admin:
     build:
+      context: ./
       dockerfile: cmd/gateway-admin/Dockerfile
     container_name: gateway-admin-api
     networks:
@@ -43,6 +47,7 @@ services:
 
   authentication-api:
     build:
+      context: ./
       dockerfile: cmd/authentication/Dockerfile
     container_name: authentication-api
     networks:
@@ -53,6 +58,7 @@ services:
 
   config-store-api:
     build:
+      context: ./
       dockerfile: cmd/config-store/Dockerfile
     container_name: config-store-api
     networks:
