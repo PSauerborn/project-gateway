@@ -9,7 +9,7 @@ services:
     - core
     - postgres
     env_file:
-    - cmd/api-gateway/.env
+    - cmd/gateway/.env
 
   api-gateway-2:
     build:
@@ -19,7 +19,7 @@ services:
     - core
     - postgres
     env_file:
-    - cmd/api-gateway/.env
+    - cmd/gateway/.env
 
   api-gateway-3:
     build:
@@ -29,7 +29,7 @@ services:
     - core
     - postgres
     env_file:
-    - cmd/api-gateway/.env
+    - cmd/gateway/.env
 
   gateway-admin:
     build:
