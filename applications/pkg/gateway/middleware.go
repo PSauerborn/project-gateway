@@ -6,6 +6,8 @@ import (
 
     "github.com/gin-gonic/gin"
     log "github.com/sirupsen/logrus"
+
+    "github.com/PSauerborn/project-gateway/pkg/utils"
 )
 
 // middleware used to inject postgres connection into request
@@ -27,10 +29,10 @@ func PostgresSessionMiddleware(postgresUrl string) gin.HandlerFunc {
 }
 
 // middleware used to parse JWTokens from request
-func JWTMiddleware(jwtSecret string) gin.HandlerFunc {
+func JWTMiddleware(jwtSecret string, adminOnly bool) gin.HandlerFunc {
     return func(ctx *gin.Context) {
         // set relevant cors headers and return options calls
-        SetCorsHeaders(ctx.Writer, ctx.Request)
+        utils.SetCorsHeaders(ctx.Writer, ctx.Request)
         if ctx.Request.Method == http.MethodOptions {
             log.Debug("received options calls. returning...")
             ctx.AbortWithStatus(http.StatusOK)
@@ -43,6 +45,12 @@ func JWTMiddleware(jwtSecret string) gin.HandlerFunc {
         if err != nil {
             log.Error(fmt.Errorf("unable to authenticate user: %v", err))
             StandardHTTP.Unauthorized(ctx)
+            return
+        }
+        // enforce admin-only uses on admin restricted routes
+        if adminOnly && !claims.Admin {
+            log.Error(fmt.Errorf("unable to authenticate user: %v", err))
+            StandardHTTP.Forbidden(ctx)
             return
         }
 

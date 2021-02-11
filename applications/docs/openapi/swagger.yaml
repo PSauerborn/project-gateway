@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  title: Project Gateway API
+  description: API used to manage project gateway API
+  version: 0.0.1
+
+servers:
+  - url: https://main.project-gateway.app
+    description: Production API Service
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: API Gateway
+    description: Micro-service used to control and route access to backend API's
+
+  - name: Config Store API
+    description: Micro-service used to store config settings for applications
+
+paths:
+  /api/{applicationName}/{resourcePath}:
+    get:
+      summary: API route used to retrieve mail relay history
+      tags:
+      - API Gateway
+      security:
+      - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: applicationName
+          schema:
+            type: string
+          description: Name of application to access
+          required: true
+        - in: path
+          name: resourcePath
+          schema:
+            type: string
+          description: Requested resource
+          required: true
+      responses:
+        401:
+          description: JSON response containing unauthorized message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+        403:
+          description: JSON response containing forbidden message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-ApiKey
+
+  schemas:
+    HealthCheckResponse:
+      properties:
+        http_code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Service running
+
+    UnauthorizedResponse:
+      properties:
+        success:
+          type: boolean
+          example: false
+        http_code:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: Unauthorized
+
+    ForbiddenResponse:
+      properties:
+        success:
+          type: boolean
+          example: false
+        http_code:
+          type: integer
+          example: 403
+        message:
+          type: string
+          example: Forbidden

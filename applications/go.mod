@@ -11,4 +11,5 @@ require (
 	github.com/jackc/pgx/v4 v4.8.1
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/sirupsen/logrus v1.6.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )

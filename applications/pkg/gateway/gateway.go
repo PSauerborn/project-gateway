@@ -35,7 +35,7 @@ func NewGateway(listenAddress, postgresUrl, jwtSecret string, listenPort int,
     router := gin.Default()
     // add postgres and authentication middlewares
     router.Use(PostgresSessionMiddleware(postgresUrl))
-    router.Use(JWTMiddleware(jwtSecret))
+    router.Use(JWTMiddleware(jwtSecret, false))
 
     var tracer io.Closer
     // optionally enable jaeger tracing

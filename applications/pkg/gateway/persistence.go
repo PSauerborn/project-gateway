@@ -5,34 +5,21 @@ import (
     "time"
     "context"
 
-    "github.com/jackc/pgx/v4/pgxpool"
     "github.com/google/uuid"
     log "github.com/sirupsen/logrus"
+
+    "github.com/PSauerborn/project-gateway/pkg/utils"
 )
 
-type Persistence struct{
-    DatabaseURL string
-    Session     *pgxpool.Pool
+type Persistence struct {
+    *utils.Persistence
 }
 
-// function to connect persistence to postgres server
-// note that the connection is returned and should be
-// closed with a defer conn.Close(context) statement
-func(db *Persistence) Connect() (*pgxpool.Pool, error) {
-    log.Debug(fmt.Sprintf("creating new database connection"))
-    // connect to postgres server and set session in persistence
-    conn, err := pgxpool.Connect(context.Background(), db.DatabaseURL)
-    if err != nil {
-        log.Error(fmt.Errorf("error connecting to postgres service: %+v", err))
-        return nil, err
-    }
-    db.Session = conn
-    return conn, err
-}
-
-func NewPersistence(url string) *Persistence {
+func NewPersistence(postgresUrl string) *Persistence {
+    // create instance of base persistence
+    basePersistence := utils.NewPersistence(postgresUrl)
     return &Persistence{
-        DatabaseURL: url,
+        basePersistence,
     }
 }
 

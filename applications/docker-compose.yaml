@@ -1,0 +1,75 @@
+version: '3.7'
+services:
+
+  api-gateway-1:
+    build:
+      dockerfile: cmd/gateway/Dockerfile
+    container_name: api-gateway-1
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/api-gateway/.env
+
+  api-gateway-2:
+    build:
+      dockerfile: cmd/gateway/Dockerfile
+    container_name: api-gateway-2
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/api-gateway/.env
+
+  api-gateway-3:
+    build:
+      dockerfile: cmd/gateway/Dockerfile
+    container_name: api-gateway-3
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/api-gateway/.env
+
+  gateway-admin:
+    build:
+      dockerfile: cmd/gateway-admin/Dockerfile
+    container_name: gateway-admin-api
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/gateway-admin/.env
+
+  authentication-api:
+    build:
+      dockerfile: cmd/authentication/Dockerfile
+    container_name: authentication-api
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/gateway-admin/.env
+
+  config-store-api:
+    build:
+      dockerfile: cmd/config-store/Dockerfile
+    container_name: config-store-api
+    networks:
+    - core
+    - postgres
+    env_file:
+    - cmd/config-store/.env
+
+  # swagger-ui:
+  #   build:
+  #     dockerfile: cmd/swagger/Dockerfile
+  #   container_name: project-gateway-documentation
+  #   networks:
+  #   - core
+
+networks:
+  core:
+    name: core
+  postgres:
+    name: postgres

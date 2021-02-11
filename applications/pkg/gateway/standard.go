@@ -94,6 +94,6 @@ func(response StandardJSONResponse) FeatureNotSupported(ctx *gin.Context) {
     ctx.AbortWithStatusJSON(http.StatusNotImplemented, gin.H{
         "http_code": http.StatusNotImplemented,
         "success": false,
-         "message": "Feature not implemented" })
+        "message": "Feature not implemented" })
 }
 

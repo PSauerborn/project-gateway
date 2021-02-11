@@ -11,7 +11,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build cmd/api-gateway/main.go
+RUN CGO_ENABLED=0 go build cmd/gateway/main.go
 
 FROM alpine:latest as server
 
