@@ -54,7 +54,7 @@ services:
     - core
     - postgres
     env_file:
-    - cmd/gateway-admin/.env
+    - cmd/authentication/.env
 
   config-store-api:
     build:
