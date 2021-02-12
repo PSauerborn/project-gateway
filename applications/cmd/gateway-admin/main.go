@@ -13,7 +13,7 @@ var (
         map[string]string{
             "listen_address": "0.0.0.0",
             "listen_port": "10101",
-            "postgres_url": "postgres://postgres:postgres-dev@192.168.99.100",
+            "postgres_url": "postgres://postgres:postgres-dev@192.168.99.100/project_gateway",
             "jwt_secret": "secret_key",
         },
     )

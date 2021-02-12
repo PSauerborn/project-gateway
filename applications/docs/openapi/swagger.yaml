@@ -12,47 +12,67 @@ security:
   - ApiKeyAuth: []
 
 tags:
-  - name: API Gateway
-    description: Micro-service used to control and route access to backend API's
+  - name: Gateway Admin API
+    description: Micro-service used to control API Gateway
+
+  - name: Identity Provider
+    description: Micro-service used as identity provider
 
   - name: Config Store API
     description: Micro-service used to store config settings for applications
 
 paths:
-  /api/{applicationName}/{resourcePath}:
+  /authenticate/health_check:
     get:
-      summary: API route used to retrieve mail relay history
+      summary: API route used to perform health check on server
       tags:
-      - API Gateway
-      security:
-      - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: applicationName
-          schema:
-            type: string
-          description: Name of application to access
-          required: true
-        - in: path
-          name: resourcePath
-          schema:
-            type: string
-          description: Requested resource
-          required: true
+      - Identity Provider
       responses:
+        200:
+          description: JSON response containing health check status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /authenticate/token:
+    post:
+      summary: API route used to obtain access token for API
+      tags:
+      - Identity Provider
+      requestBody:
+        description: Raw JSON body containing login details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        200:
+          description: JSON response containing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        400:
+          description: JSON response containing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponse'
         401:
-          description: JSON response containing unauthorized message
+          description: JSON response containing access token
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnauthorizedResponse'
-
-        403:
-          description: JSON response containing forbidden message
+        500:
+          description: JSON response containing access token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForbiddenResponse'
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+
 
 components:
   securitySchemes:
@@ -94,3 +114,45 @@ components:
         message:
           type: string
           example: Forbidden
+
+    InvalidRequestResponse:
+      properties:
+        success:
+          type: boolean
+          example: false
+        http_code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Invalid request body
+
+    InternalServerErrorResponse:
+      properties:
+        success:
+          type: boolean
+          example: false
+        http_code:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: Internal server error
+
+    LoginRequest:
+      properties:
+        uid:
+          type: string
+          example: test-user
+        password:
+          type: string
+          example: test-password
+
+    TokenResponse:
+      properties:
+        http_code:
+          type: integer
+          example: 200
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImV4cCI6MTYxMzA3Mzk1OCwidWlkIjoidGVzdC11c2VyIn0.HFZ_kfy-sW_4zLc_K-WodLg780FmwC0HYA1K5n6hZxk

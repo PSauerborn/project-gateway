@@ -13,6 +13,8 @@ import (
     log "github.com/sirupsen/logrus"
     opentracing "github.com/opentracing/opentracing-go"
     jaeger "github.com/PSauerborn/jaeger-negroni"
+
+    "github.com/PSauerborn/project-gateway/pkg/utils"
 )
 
 type APIGateway struct{
@@ -101,11 +103,14 @@ func forwardProxy(ctx *gin.Context) {
     }
 
     // get jaeger span from current context and defer closure
-    span := getJaegerSpan(ctx.Request, fmt.Sprintf("Proxy - %s",
-    strings.Title(appDetails.ApplicationName)))
+    span := utils.GetJaegerSpan(ctx.Request, fmt.Sprintf("Proxy - %s",
+        strings.Title(appDetails.ApplicationName)))
     defer span.Finish()
     // set commonly used jaeger tags
-    setJaegerTags(span, ctx.Request, ctx.MustGet("uid").(string))
+    jaegerTags := map[string]string{
+        "uid": ctx.MustGet("uid").(string),
+    }
+    utils.SetJaegerTags(span, ctx.Request, jaegerTags)
 
     // inject current span into downstream microservice headers
     opentracing.GlobalTracer().Inject(
